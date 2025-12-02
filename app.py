@@ -1,33 +1,63 @@
 import streamlit as st
-import random
 
-st.title("🎯 Simple Guessing Game")
+st.set_page_config(page_title="Mini Amazon Demo", layout="wide")
 
-# Initialize a secret number in session_state
-if "secret" not in st.session_state:
-    st.session_state.secret = random.randint(1, 100)
+st.title("🛒 Mini Amazon Demo")
 
-if "message" not in st.session_state:
-    st.session_state.message = ""
+# Fake product data
+products = [
+    {
+        "name": "Wireless Headphones",
+        "price": 39.99,
+        "desc": "Lightweight Bluetooth headphones with 10-hour battery life.",
+        "img": "https://via.placeholder.com/150"
+    },
+    {
+        "name": "Smartwatch",
+        "price": 59.99,
+        "desc": "Tracks fitness, heart rate, and sleep.",
+        "img": "https://via.placeholder.com/150"
+    },
+    {
+        "name": "Portable Speaker",
+        "price": 24.99,
+        "desc": "Water-resistant speaker with deep bass.",
+        "img": "https://via.placeholder.com/150"
+    },
+]
 
-st.write("I'm thinking of a number between 1 and 100. Can you guess it?")
+# Initialize cart
+if "cart" not in st.session_state:
+    st.session_state.cart = []
 
-guess = st.number_input("Enter your guess:", min_value=1, max_value=100, step=1)
+# Product grid
+cols = st.columns(3)
 
-if st.button("Guess"):
-    if guess < st.session_state.secret:
-        st.session_state.message = "Too low! 🔽"
-    elif guess > st.session_state.secret:
-        st.session_state.message = "Too high! 🔼"
-    else:
-        st.session_state.message = "🎉 Correct! You guessed it!"
-        
-    st.experimental_rerun()
+for i, product in enumerate(products):
+    with cols[i]:
+        st.image(product["img"])
+        st.subheader(product["name"])
+        st.write(product["desc"])
+        st.write(f"**Price: ${product['price']}**")
 
-st.write(st.session_state.message)
+        if st.button(f"Add to Cart #{i}"):
+            st.session_state.cart.append(product)
+            st.success("Added to cart!")
 
-# Reset game
-if st.button("New Game"):
-    st.session_state.secret = random.randint(1, 100)
-    st.session_state.message = ""
-    st.experimental_rerun()
+st.write("---")
+
+st.subheader("🛍️ Your Cart")
+
+if len(st.session_state.cart) == 0:
+    st.info("Your cart is empty.")
+else:
+    total = 0
+    for item in st.session_state.cart:
+        st.write(f"- **{item['name']}** — ${item['price']}")
+        total += item["price"]
+
+    st.write(f"### 💰 Total: ${total:.2f}")
+
+    if st.button("Clear Cart"):
+        st.session_state.cart = []
+        st.experimental_rerun()
